@@ -42,7 +42,7 @@ public partial class App : Application
 
     private void OpenMainWindow(LicensingSession session)
     {
-        var window = new MainWindow(session);
+        var window = new MainWindow(session, _licenseCoordinator);
         window.SignOutRequested += MainWindow_SignOutRequested;
         window.SignOutEverywhereRequested += MainWindow_SignOutEverywhereRequested;
         window.DeactivateRequested += MainWindow_DeactivateRequested;

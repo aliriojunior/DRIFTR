@@ -59,6 +59,24 @@ public sealed class LicensingApiClient : IDisposable
     public Task<LicenseResponse> GetLicenseAsync(string token, CancellationToken cancellationToken = default) =>
         SendAsync<LicenseResponse>(HttpMethod.Get, "license/me", null, token, cancellationToken);
 
+    public Task<BillingCheckoutResponse> CreateBillingCheckoutAsync(
+        string token,
+        string plan,
+        CancellationToken cancellationToken = default)
+    {
+        if (!BillingPolicy.IsSupportedPlan(plan))
+        {
+            throw new ArgumentOutOfRangeException(nameof(plan), "Unsupported DRIFTR billing plan.");
+        }
+
+        return SendAsync<BillingCheckoutResponse>(
+            HttpMethod.Post,
+            "billing/checkout",
+            new BillingCheckoutRequest(plan),
+            token,
+            cancellationToken);
+    }
+
     public Task<DeviceResponse> ActivateDeviceAsync(
         string token,
         DeviceIdentity identity,

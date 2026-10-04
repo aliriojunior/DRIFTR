@@ -18,8 +18,9 @@ public partial class MainWindow : Window
     private static readonly Brush NormalButtonBrush = MakeBrush(25, 31, 42);
     private readonly SettingsService _settingsService = new();
     private readonly AppSettings _settings;
-    private readonly LicensingSession _licensingSession;
-    private readonly int _maxSessions;
+    private LicensingSession _licensingSession;
+    private int _maxSessions;
+    private readonly LicenseCoordinator? _licenseCoordinator;
     private readonly PopOutSessionState _popOutState;
     private readonly MemoryDiagnosticsService? _memoryDiagnostics;
     private readonly MemoryDiagnosticsOptions _diagnosticsOptions;
@@ -47,10 +48,11 @@ public partial class MainWindow : Window
     private bool _repairInProgress;
     private WindowState _windowStateBeforeFullscreen = WindowState.Normal;
 
-    public MainWindow(LicensingSession licensingSession)
+    public MainWindow(LicensingSession licensingSession, LicenseCoordinator? licenseCoordinator = null)
     {
         _updateChecker = new UpdateChecker(_releaseProvider);
         _licensingSession = licensingSession;
+        _licenseCoordinator = licenseCoordinator;
         _maxSessions = EntitlementPolicy.NormalizeMaxSessions(licensingSession.License.MaxSessions);
         _popOutState = new PopOutSessionState(_maxSessions);
         InitializeComponent();
@@ -81,7 +83,7 @@ public partial class MainWindow : Window
         RestartSessionButton.Visibility = _diagnosticsOptions.Enabled ? Visibility.Visible : Visibility.Collapsed;
 
         EmailLabel.Text = licensingSession.Email;
-        PlanLabel.Text = _maxSessions == 4 ? "DRIFTR PRO · 4 SESSIONS" : "DRIFTR FREE · 1 SESSION";
+        UpdatePlanDisplay();
         ConfigureEntitlements();
         _toolbarVisible = _settings.ToolbarVisible;
         ApplyToolbarVisibility();
@@ -152,6 +154,40 @@ public partial class MainWindow : Window
         QuadButton.IsEnabled = EntitlementPolicy.CanUseLayout(LayoutMode.Quad, _maxSessions);
         ThreeLayoutButton.IsEnabled = EntitlementPolicy.CanUseLayout(LayoutMode.Three, _maxSessions);
         UpdateDuoOrientationButton();
+    }
+
+    private void UpdatePlanDisplay()
+    {
+        PlanLabel.Text = BillingPolicy.GetPlanLabel(_licensingSession.License);
+        UpgradeButton.Visibility = _licenseCoordinator is not null &&
+                                   BillingPolicy.ShouldShowUpgrade(_licensingSession.License)
+            ? Visibility.Visible
+            : Visibility.Collapsed;
+    }
+
+    private void ApplyLicensingSession(LicensingSession session)
+    {
+        _licensingSession = session;
+        _maxSessions = EntitlementPolicy.NormalizeMaxSessions(session.License.MaxSessions);
+        _popOutState.UpdateMaxSessions(_maxSessions);
+        for (int index = 0; index < _panels.Length; index++)
+        {
+            _panels[index].SetSessionEnabled(index < _maxSessions);
+        }
+
+        ConfigureEntitlements();
+        UpdatePlanDisplay();
+        ApplyLayout(EntitlementPolicy.EnforceLayout(_layout, _maxSessions));
+    }
+
+    private void UpgradeButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_licenseCoordinator is null || !BillingPolicy.ShouldShowUpgrade(_licensingSession.License)) return;
+        var dialog = new UpgradeDialog(_licenseCoordinator) { Owner = this };
+        if (dialog.ShowDialog() == true && dialog.ConfirmedSession is not null)
+        {
+            ApplyLicensingSession(dialog.ConfirmedSession);
+        }
     }
 
     private void RestoreWindowSettings()

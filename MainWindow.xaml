@@ -26,6 +26,10 @@
                     <StackPanel Margin="0,0,8,0" VerticalAlignment="Center">
                         <TextBlock x:Name="PlanLabel" HorizontalAlignment="Right" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
                         <TextBlock x:Name="EmailLabel" MaxWidth="145" TextTrimming="CharacterEllipsis" FontSize="9" Foreground="{StaticResource MutedTextBrush}"/>
+                        <Button x:Name="UpgradeButton" AutomationProperties.AutomationId="Upgrade"
+                                Content="UPGRADE" Height="20" MinWidth="72" Margin="0,2,0,0" Padding="7,1"
+                                HorizontalAlignment="Right" BorderBrush="#82CEFF" Foreground="#C8EDFF"
+                                FontSize="9" ToolTip="Upgrade to DRIFTR PRO" Click="UpgradeButton_Click"/>
                     </StackPanel>
                     <Button x:Name="RestoreAllButton" AutomationProperties.AutomationId="RestoreAll" Content="RESTORE ALL" MinWidth="88" Visibility="Collapsed" ToolTip="Dock every detached account" Click="RestoreAllButton_Click"/>
                     <Button x:Name="RestartSessionButton" AutomationProperties.AutomationId="RestartSession" Content="RESTART SESSION" MinWidth="118" Visibility="Collapsed" ToolTip="Diagnostic only: recreate the selected browser session" Click="RestartSessionButton_Click"/>

@@ -136,6 +136,19 @@ public sealed class LicenseCoordinator
         ClearLocalAuthentication();
     }
 
+    public Task<BillingCheckoutResponse> CreateBillingCheckoutAsync(
+        string plan,
+        CancellationToken cancellationToken = default) =>
+        ExecuteAuthenticatedAsync(
+            (token, ct) => _apiClient.CreateBillingCheckoutAsync(token, plan, ct),
+            cancellationToken);
+
+    public Task<LicensingSession> RefreshEntitlementAsync(CancellationToken cancellationToken = default)
+    {
+        StoredAuthSession current = GetCurrent() ?? throw SessionExpired();
+        return EstablishAsync(current.Email, cancellationToken);
+    }
+
     private async Task<LicensingSession> EstablishAsync(
         string email,
         CancellationToken cancellationToken,

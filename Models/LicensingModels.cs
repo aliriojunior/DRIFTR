@@ -19,6 +19,8 @@ public sealed record DeviceDeactivationRequest(
     [property: JsonPropertyName("device_id")] string DeviceId);
 public sealed record LicenseValidationRequest(
     [property: JsonPropertyName("device_id")] string DeviceId);
+public sealed record BillingCheckoutRequest(
+    [property: JsonPropertyName("plan")] string Plan);
 
 public sealed record TokenResponse(
     [property: JsonPropertyName("access_token")] string AccessToken,
@@ -47,6 +49,15 @@ public sealed record LicenseValidationResponse(
     [property: JsonPropertyName("expires_at")] DateTimeOffset? ExpiresAt,
     [property: JsonPropertyName("valid")] bool Valid,
     [property: JsonPropertyName("device_authorized")] bool DeviceAuthorized);
+
+public sealed record BillingCheckoutResponse(
+    [property: JsonPropertyName("provider")] string Provider,
+    [property: JsonPropertyName("checkout_session_id")] string CheckoutSessionId,
+    [property: JsonPropertyName("checkout_url")] string CheckoutUrl,
+    [property: JsonPropertyName("plan")] string Plan,
+    [property: JsonPropertyName("currency")] string Currency,
+    [property: JsonPropertyName("amount_minor")] long AmountMinor,
+    [property: JsonPropertyName("billing_interval")] string BillingInterval);
 
 public sealed record DeviceResponse(
     [property: JsonPropertyName("device_id")] string DeviceId,

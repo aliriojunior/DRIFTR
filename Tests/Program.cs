@@ -34,6 +34,9 @@ try
     TestDeviceIdentity(Path.Combine(root, "identity"));
     TestProtectedSession(Path.Combine(root, "session"));
     await TestApiContractAsync();
+    await TestBillingCheckoutContractAsync();
+    TestBillingPresentationAndUrlValidation();
+    await TestCheckoutAndAuthoritativeEntitlementRefreshAsync(Path.Combine(root, "billing-refresh"));
     await TestLoginStoresRefreshSessionAsync(Path.Combine(root, "login"));
     await TestAdaptiveProactiveWindowsAsync(Path.Combine(root, "adaptive-window"));
     await TestProactiveRefreshAndSingleFlightAsync(Path.Combine(root, "single-flight"));
@@ -188,6 +191,10 @@ static void TestEntitlements()
     Assert(EntitlementPolicy.EnforceLayout(LayoutMode.Quad, 1) == LayoutMode.Solo, "Free layout falls back to Solo.");
     Assert(Enumerable.Range(2, 3).All(account => !EntitlementPolicy.CanUseAccount(account, 1)),
         "Free cannot enable Accounts 2-4.");
+    var refreshedState = new PopOutSessionState(1);
+    refreshedState.UpdateMaxSessions(4);
+    Assert(refreshedState.DockedAccounts.Count == 4 && refreshedState.CanDetach(4),
+        "A refreshed Pro entitlement exposes all four session slots immediately.");
 }
 
 static void TestLicensingApiConfiguration()
@@ -630,6 +637,79 @@ static async Task TestApiContractAsync()
     Assert(handler.Authorization == "Bearer token", "API sends bearer authorization.");
     Assert(LicensingApiClient.MapError(HttpStatusCode.Conflict, "DEVICE_LIMIT_REACHED", null).Kind == LicensingErrorKind.DeviceLimit,
         "Device-limit errors are mapped.");
+}
+
+static async Task TestBillingCheckoutContractAsync()
+{
+    foreach (string plan in new[] { BillingPolicy.ProMonthly, BillingPolicy.ProAnnual })
+    {
+        var handler = new ScenarioHandler(request => Task.FromResult(JsonResponse(
+            $"{{\"provider\":\"mercado_pago\",\"checkout_session_id\":\"checkout-123\",\"checkout_url\":\"https://checkout.example/session\",\"plan\":\"{plan}\",\"currency\":\"BRL\",\"amount_minor\":{(plan == BillingPolicy.ProMonthly ? 990 : 9900)},\"billing_interval\":\"{(plan == BillingPolicy.ProMonthly ? "month" : "year")}\"}}")));
+        using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
+        using var api = new LicensingApiClient(http);
+        BillingCheckoutResponse response = await api.CreateBillingCheckoutAsync("billing-token", plan);
+        RequestSnapshot request = handler.Requests.Single();
+        using JsonDocument payload = JsonDocument.Parse(request.Body!);
+        Assert(request.Method == "POST" && request.Path == "/billing/checkout" &&
+               request.Authorization == "Bearer billing-token" && payload.RootElement.GetProperty("plan").GetString() == plan,
+            $"{plan} checkout serializes the authenticated backend request.");
+        Assert(response.Provider == "mercado_pago" && response.CheckoutSessionId == "checkout-123" &&
+               response.CheckoutUrl == "https://checkout.example/session" && response.Plan == plan &&
+               response.Currency == "BRL" && response.AmountMinor == (plan == BillingPolicy.ProMonthly ? 990 : 9900),
+            $"{plan} checkout response parses into the typed billing model.");
+    }
+}
+
+static void TestBillingPresentationAndUrlValidation()
+{
+    var free = new LicenseValidationResponse("FREE", "ACTIVE", 1, 1, null, true, true);
+    var monthly = new LicenseValidationResponse(BillingPolicy.ProMonthly, "ACTIVE", 4, 1, null, true, true);
+    var annual = new LicenseValidationResponse(BillingPolicy.ProAnnual, "ACTIVE", 4, 1, null, true, true);
+    Assert(BillingPolicy.ShouldShowUpgrade(free) && BillingPolicy.GetPlanLabel(free) == "DRIFTR FREE · 1 SESSION",
+        "Free entitlement exposes Upgrade and the Free plan label.");
+    Assert(!BillingPolicy.ShouldShowUpgrade(monthly) && BillingPolicy.GetPlanLabel(monthly) == "DRIFTR PRO · MONTHLY",
+        "Active monthly Pro hides misleading Upgrade and shows Monthly.");
+    Assert(!BillingPolicy.ShouldShowUpgrade(annual) && BillingPolicy.GetPlanLabel(annual) == "DRIFTR PRO · ANNUAL",
+        "Active annual Pro hides misleading Upgrade and shows Annual.");
+    Assert(BillingPolicy.RequireSecureCheckoutUri("https://checkout.example/session").Scheme == Uri.UriSchemeHttps,
+        "An absolute HTTPS checkout URL is accepted.");
+    _ = AssertThrows<LicensingException>(() => BillingPolicy.RequireSecureCheckoutUri(null));
+    _ = AssertThrows<LicensingException>(() => BillingPolicy.RequireSecureCheckoutUri("not-a-url"));
+    _ = AssertThrows<LicensingException>(() => BillingPolicy.RequireSecureCheckoutUri("http://checkout.example/session"));
+    Console.WriteLine("PASS: Missing, malformed, and non-HTTPS checkout URLs are rejected.");
+}
+
+static async Task TestCheckoutAndAuthoritativeEntitlementRefreshAsync(string path)
+{
+    var store = new AuthSessionService(path);
+    store.Save(FreshSession("access", "refresh"));
+    int maxSessions = 1;
+    string plan = "FREE";
+    var handler = new ScenarioHandler(request => Task.FromResult(request.Path switch
+    {
+        "/billing/checkout" => JsonResponse("{\"provider\":\"mercado_pago\",\"checkout_session_id\":\"checkout-123\",\"checkout_url\":\"https://checkout.example/session\",\"plan\":\"PRO_MONTHLY\",\"currency\":\"BRL\",\"amount_minor\":990,\"billing_interval\":\"month\"}"),
+        "/license/validate" => JsonResponse($"{{\"plan\":\"{plan}\",\"status\":\"ACTIVE\",\"max_sessions\":{maxSessions},\"max_devices\":1,\"expires_at\":null,\"valid\":true,\"device_authorized\":true}}"),
+        _ => StandardResponse(request)
+    }));
+    using var http = new HttpClient(handler) { BaseAddress = new Uri("http://localhost/") };
+    using var api = new LicensingApiClient(http);
+    var coordinator = new LicenseCoordinator(api, new DeviceIdentityService(path), store);
+    LicensingSession initial = (await coordinator.TryResumeAsync())!;
+    int validationsBeforeCheckout = handler.Count("/license/validate");
+    _ = await coordinator.CreateBillingCheckoutAsync(BillingPolicy.ProMonthly);
+    Assert(initial.License.MaxSessions == 1 && handler.Count("/license/validate") == validationsBeforeCheckout,
+        "Checkout creation alone does not grant Pro or mutate entitlement.");
+
+    LicensingSession stillFree = await coordinator.RefreshEntitlementAsync();
+    Assert(stillFree.License.MaxSessions == 1 && EntitlementPolicy.NormalizeMaxSessions(stillFree.License.MaxSessions) == 1,
+        "Free remains Free while the backend still reports Free.");
+
+    maxSessions = 4;
+    plan = BillingPolicy.ProMonthly;
+    LicensingSession confirmed = await coordinator.RefreshEntitlementAsync();
+    Assert(confirmed.License.Plan == BillingPolicy.ProMonthly &&
+           EntitlementPolicy.NormalizeMaxSessions(confirmed.License.MaxSessions) == 4,
+        "Authoritative backend refresh grants Pro and updates the four-session limit.");
 }
 
 static async Task TestLoginStoresRefreshSessionAsync(string path)

@@ -1,0 +1,124 @@
+<Window x:Class="PokeQuad.UpgradeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Upgrade to DRIFTR PRO" Width="560" Height="610" MinWidth="520" MinHeight="570"
+        ResizeMode="CanMinimize" WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
+        Icon="{StaticResource DriftrWindowIcon}" Closing="Window_Closing">
+    <Window.Resources>
+        <SolidColorBrush x:Key="UpgradeAccentBrush" Color="#82CEFF"/>
+        <SolidColorBrush x:Key="UpgradeAccentSoftBrush" Color="#182B3A"/>
+        <Style x:Key="PlanCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="18"/>
+        </Style>
+    </Window.Resources>
+    <Border Margin="1" Padding="30" Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource BorderBrush}" BorderThickness="1">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel>
+                <TextBlock Text="DRIFTR PRO" Foreground="{StaticResource UpgradeAccentBrush}"
+                           FontSize="22" FontWeight="Bold"/>
+                <TextBlock Text="Unlock up to four independent sessions." Margin="0,7,0,0"
+                           Foreground="{StaticResource MutedTextBrush}" FontSize="12"/>
+            </StackPanel>
+
+            <Grid x:Name="PlanSelectionPanel" Grid.Row="1" Margin="0,25,0,22">
+                <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="12"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+                <Border>
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource PlanCardStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=MonthlyRadio}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{StaticResource UpgradeAccentBrush}"/>
+                                    <Setter Property="Background" Value="{StaticResource UpgradeAccentSoftBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <RadioButton x:Name="MonthlyRadio" GroupName="Plan" VerticalContentAlignment="Center">
+                        <Grid Margin="8,0,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="MONTHLY" Foreground="{StaticResource TextBrush}" FontSize="13" FontWeight="Bold"/>
+                                <TextBlock Text="Up to 4 sessions  ·  1 device" Margin="0,9,0,0" Foreground="{StaticResource MutedTextBrush}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Text="R$ 9.90" Foreground="{StaticResource TextBrush}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                <TextBlock Text="/ month" Foreground="{StaticResource TextBrush}" Opacity="0.72" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Grid>
+                    </RadioButton>
+                </Border>
+                <Border Grid.Row="2">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource PlanCardStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsChecked, ElementName=AnnualRadio}" Value="True">
+                                    <Setter Property="BorderBrush" Value="{StaticResource UpgradeAccentBrush}"/>
+                                    <Setter Property="Background" Value="{StaticResource UpgradeAccentSoftBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <RadioButton x:Name="AnnualRadio" GroupName="Plan" IsChecked="True" VerticalContentAlignment="Center">
+                        <Grid Margin="8,0,0,0">
+                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="ANNUAL" Foreground="{StaticResource TextBrush}" FontSize="13" FontWeight="Bold"/>
+                                    <Border Margin="10,-3,0,0" Padding="7,2" CornerRadius="3" Background="{StaticResource UpgradeAccentBrush}">
+                                        <TextBlock Text="BEST VALUE" Foreground="#07121A" FontSize="9" FontWeight="Bold"/>
+                                    </Border>
+                                </StackPanel>
+                                <TextBlock Text="Up to 4 sessions  ·  1 device" Margin="0,9,0,0" Foreground="{StaticResource MutedTextBrush}"/>
+                                <TextBlock Text="SAVE R$ 19.80" Margin="0,5,0,0" Foreground="{StaticResource UpgradeAccentBrush}" FontSize="10" FontWeight="Bold"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                                <TextBlock Text="R$ 99" Foreground="{StaticResource TextBrush}" FontSize="22" FontWeight="SemiBold" HorizontalAlignment="Right"/>
+                                <TextBlock Text="/ year" Foreground="{StaticResource TextBrush}" Opacity="0.72" HorizontalAlignment="Right"/>
+                            </StackPanel>
+                        </Grid>
+                    </RadioButton>
+                </Border>
+            </Grid>
+
+            <StackPanel x:Name="CheckoutStatusPanel" Grid.Row="1" Margin="0,40,0,22" Visibility="Collapsed"
+                        HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="410">
+                <TextBlock x:Name="CheckoutStatusTitle" Text="Complete payment in your browser."
+                           FontSize="18" FontWeight="SemiBold" TextAlignment="Center"/>
+                <TextBlock x:Name="CheckoutStatusMessage"
+                           Text="When checkout is complete, return to DRIFTR and confirm below."
+                           Margin="0,13,0,0" Foreground="{StaticResource MutedTextBrush}"
+                           TextWrapping="Wrap" TextAlignment="Center"/>
+            </StackPanel>
+
+            <Grid Grid.Row="2">
+                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                <TextBlock x:Name="ErrorText" Foreground="#FF9A8D" TextWrapping="Wrap" Visibility="Collapsed" Margin="0,0,0,12"/>
+                <TextBlock Grid.Row="1" Text="Secure checkout opens in your browser." Foreground="{StaticResource MutedTextBrush}"
+                           FontSize="11" Margin="0,0,0,16"/>
+                <Grid Grid.Row="2">
+                    <Button x:Name="CancelButton" Content="CANCEL" IsCancel="True" MinWidth="88" HorizontalAlignment="Left"/>
+                    <Button x:Name="ContinueButton" AutomationProperties.AutomationId="ContinueToCheckout"
+                            Content="CONTINUE TO CHECKOUT" MinWidth="190" HorizontalAlignment="Right"
+                            Background="{StaticResource UpgradeAccentSoftBrush}" BorderBrush="{StaticResource UpgradeAccentBrush}"
+                            Click="ContinueButton_Click"/>
+                    <Button x:Name="VerifyButton" AutomationProperties.AutomationId="VerifyPayment"
+                            Content="I'VE COMPLETED PAYMENT" MinWidth="190" HorizontalAlignment="Right" Visibility="Collapsed"
+                            Background="{StaticResource UpgradeAccentSoftBrush}" BorderBrush="{StaticResource UpgradeAccentBrush}"
+                            Click="VerifyButton_Click"/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </Border>
+</Window>

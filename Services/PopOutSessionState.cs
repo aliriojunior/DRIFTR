@@ -2,7 +2,7 @@ namespace PokeQuad.Services;
 
 public sealed class PopOutSessionState(int maxSessions)
 {
-    private readonly int _maxSessions = EntitlementPolicy.NormalizeMaxSessions(maxSessions);
+    private int _maxSessions = EntitlementPolicy.NormalizeMaxSessions(maxSessions);
     private readonly HashSet<int> _detached = [];
 
     public IReadOnlyCollection<int> DetachedAccounts => _detached;
@@ -16,6 +16,12 @@ public sealed class PopOutSessionState(int maxSessions)
     public bool Detach(int accountNumber) => CanDetach(accountNumber) && _detached.Add(accountNumber);
 
     public bool Dock(int accountNumber) => _detached.Remove(accountNumber);
+
+    public void UpdateMaxSessions(int maxSessions)
+    {
+        _maxSessions = EntitlementPolicy.NormalizeMaxSessions(maxSessions);
+        _detached.RemoveWhere(account => !EntitlementPolicy.CanUseAccount(account, _maxSessions));
+    }
 
     public void RestoreAll() => _detached.Clear();
 
