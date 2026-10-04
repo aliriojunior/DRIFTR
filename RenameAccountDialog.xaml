@@ -1,0 +1,23 @@
+<Window x:Class="PokeQuad.RenameAccountDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rename account" Width="380" Height="170" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}"
+        Icon="{StaticResource DriftrWindowIcon}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="ACCOUNT NAME" Foreground="{StaticResource MutedTextBrush}" FontSize="10" FontWeight="Bold" />
+        <TextBox x:Name="NameTextBox" Grid.Row="1" Margin="0,8,0,0" Padding="9,7" MaxLength="24"
+                 Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
+                 BorderBrush="{StaticResource BorderBrush}" CaretBrush="{StaticResource TextBrush}" KeyDown="NameTextBox_KeyDown" />
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+            <Button Content="Cancel" IsCancel="True" MinWidth="72" />
+            <Button Content="Save" IsDefault="True" MinWidth="72" Margin="6,0,0,0" Click="SaveButton_Click" />
+        </StackPanel>
+    </Grid>
+</Window>

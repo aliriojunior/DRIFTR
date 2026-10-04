@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DRIFTR controlled navigation B</title>
+  <style>body { background:#17111f; color:#e8dff1; font:20px system-ui; padding:10vh; } strong { color:#ae84ce; }</style>
+</head>
+<body>
+  <h1>Controlled navigation page B</h1>
+  <p>Cycle <strong id="cycle"></strong>. Navigating to A in five seconds.</p>
+  <script>
+    document.getElementById('cycle').textContent = sessionStorage.getItem('driftr-navigation-cycle') || '0';
+    setTimeout(() => location.replace('navigation-a.html'), 5000);
+  </script>
+</body>
+</html>

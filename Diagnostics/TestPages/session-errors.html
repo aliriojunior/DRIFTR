@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>DRIFTR isolated session diagnostics fixture</title>
+</head>
+<body>
+  <main id="ready">isolated diagnostic fixture ready</main>
+  <script>
+    window.addEventListener("load", () => setTimeout(() => {
+      console.error("synthetic console [object Event] password=session-diagnostic-secret");
+      Promise.reject(new Error("synthetic rejection access_token=session-diagnostic-token"));
+      fetch("http://127.0.0.1:9/driftr-session-diagnostic-failure").catch(() => {});
+      setTimeout(() => { throw new Error("synthetic uncaught exception"); }, 25);
+    }, 2000));
+  </script>
+</body>
+</html>

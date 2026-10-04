@@ -1,0 +1,58 @@
+<Window x:Class="PokeQuad.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="clr-namespace:PokeQuad.Controls"
+        Title="DRIFTR" Width="1400" Height="900" MinWidth="1080" MinHeight="620" WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}" Icon="{StaticResource DriftrWindowIcon}" PreviewKeyDown="Window_PreviewKeyDown" Closing="Window_Closing">
+    <Grid>
+        <Grid.RowDefinitions><RowDefinition x:Name="TopBarRow" Height="62"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <Border x:Name="AppTopBar" Grid.Row="0" Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,0,1">
+            <Grid Margin="14,0">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="220"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="DRIFTR" Foreground="{StaticResource BrandBrush}" FontSize="18" FontWeight="Bold"/>
+                    <TextBlock Text="ONE WINDOW. EVERY WORLD." Foreground="{StaticResource MutedTextBrush}" FontSize="7" FontWeight="SemiBold"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button x:Name="Account1Button" AutomationProperties.AutomationId="Account1" Content="1" MinWidth="38" Click="AccountButton_Click" Tag="1"/>
+                    <Button x:Name="Account2Button" AutomationProperties.AutomationId="Account2" Content="2" MinWidth="38" Click="AccountButton_Click" Tag="2"/>
+                    <Button x:Name="Account3Button" AutomationProperties.AutomationId="Account3" Content="3" MinWidth="38" Click="AccountButton_Click" Tag="3"/>
+                    <Button x:Name="Account4Button" AutomationProperties.AutomationId="Account4" Content="4" MinWidth="38" Click="AccountButton_Click" Tag="4"/>
+                    <Border Width="1" Height="25" Background="{StaticResource BorderBrush}" Margin="9,0"/>
+                    <Button x:Name="SoloButton" AutomationProperties.AutomationId="SoloLayout" Content="SOLO" MinWidth="60" Click="SoloButton_Click"/>
+                    <Button x:Name="DuoButton" AutomationProperties.AutomationId="DuoLayout" Content="DUO" MinWidth="58" Click="DuoButton_Click"/>
+                    <Button x:Name="DuoOrientationButton" AutomationProperties.AutomationId="DuoOrientation" Content="SIDE BY SIDE" MinWidth="88" Click="DuoOrientationButton_Click"/>
+                    <Button x:Name="ThreeLayoutButton" AutomationProperties.AutomationId="ThreeSessionLayout" Content="3: LARGE LEFT" MinWidth="104" Visibility="Collapsed" Click="ThreeLayoutButton_Click"/>
+                    <Button x:Name="QuadButton" AutomationProperties.AutomationId="QuadLayout" Content="QUAD" MinWidth="62" Click="QuadButton_Click"/>
+                </StackPanel>
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                    <StackPanel Margin="0,0,8,0" VerticalAlignment="Center">
+                        <TextBlock x:Name="PlanLabel" HorizontalAlignment="Right" FontSize="9" FontWeight="Bold" Foreground="{StaticResource AccentBrush}"/>
+                        <TextBlock x:Name="EmailLabel" MaxWidth="145" TextTrimming="CharacterEllipsis" FontSize="9" Foreground="{StaticResource MutedTextBrush}"/>
+                    </StackPanel>
+                    <Button x:Name="RestoreAllButton" AutomationProperties.AutomationId="RestoreAll" Content="RESTORE ALL" MinWidth="88" Visibility="Collapsed" ToolTip="Dock every detached account" Click="RestoreAllButton_Click"/>
+                    <Button x:Name="RestartSessionButton" AutomationProperties.AutomationId="RestartSession" Content="RESTART SESSION" MinWidth="118" Visibility="Collapsed" ToolTip="Diagnostic only: recreate the selected browser session" Click="RestartSessionButton_Click"/>
+                    <Button x:Name="ToolbarButton" Content="TOOLS: ON" MinWidth="82" ToolTip="Toggle panel toolbars (Ctrl+T)" Click="ToolbarButton_Click"/>
+                    <Button x:Name="CheckUpdatesButton" AutomationProperties.AutomationId="CheckForUpdates" Content="UPDATES" MinWidth="74" ToolTip="Check for Updates" Click="CheckUpdatesButton_Click"/>
+                    <Button Content="RELOAD" MinWidth="70" ToolTip="Reload available sessions" Click="ReloadAllButton_Click"/>
+                    <Button AutomationProperties.AutomationId="SignOut" Content="SIGN OUT" MinWidth="76" Click="SignOutButton_Click"/>
+                    <Button AutomationProperties.AutomationId="SignOutEverywhere" Content="SIGN OUT ALL" MinWidth="92" ToolTip="Sign out everywhere" Click="SignOutEverywhereButton_Click"/>
+                    <Button AutomationProperties.AutomationId="DeactivateDevice" Content="DEVICE" MinWidth="66" ToolTip="Deactivate this device" Click="DeactivateButton_Click"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+        <Grid x:Name="BrowserGrid" Grid.Row="1" Margin="1">
+            <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+            <controls:BrowserPanel x:Name="Account1Panel" AccountNumber="1" Grid.Row="0" Grid.Column="0"/>
+            <controls:BrowserPanel x:Name="Account2Panel" AccountNumber="2" Grid.Row="0" Grid.Column="1"/>
+            <controls:BrowserPanel x:Name="Account3Panel" AccountNumber="3" Grid.Row="1" Grid.Column="0"/>
+            <controls:BrowserPanel x:Name="Account4Panel" AccountNumber="4" Grid.Row="1" Grid.Column="1"/>
+            <Border x:Name="EmptyWorkspace" Grid.RowSpan="2" Grid.ColumnSpan="2" Panel.ZIndex="10"
+                    Background="{StaticResource BackgroundBrush}" Visibility="Collapsed">
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <TextBlock Text="ALL SESSIONS ARE DETACHED" Foreground="{StaticResource MutedTextBrush}" FontSize="14" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                    <TextBlock Text="Use Restore All to return every account to this window." Foreground="{StaticResource MutedTextBrush}" Margin="0,8,0,14"/>
+                    <Button AutomationProperties.AutomationId="EmptyRestoreAll" Content="RESTORE ALL" MinWidth="110" Click="RestoreAllButton_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </Grid>
+</Window>

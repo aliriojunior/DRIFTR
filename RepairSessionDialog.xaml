@@ -1,0 +1,24 @@
+<Window x:Class="PokeQuad.RepairSessionDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:PokeQuad.Services"
+        Title="Repair Session" Width="470" Height="275" ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        Background="{StaticResource BackgroundBrush}" Foreground="{StaticResource TextBrush}"
+        Icon="{StaticResource DriftrWindowIcon}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock x:Name="TitleText" FontSize="19" FontWeight="SemiBold" Foreground="{StaticResource TextBrush}"/>
+        <TextBlock Grid.Row="1" Text="{x:Static services:SessionRepairPolicy.ConfirmationMessage}"
+                   Margin="0,18,0,18" TextWrapping="Wrap" FontSize="12"
+                   Foreground="{StaticResource MutedTextBrush}"/>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancel" MinWidth="88" IsCancel="True" Margin="0,0,8,0"/>
+            <Button Content="Repair Session" MinWidth="118" IsDefault="True" Click="RepairButton_Click"/>
+        </StackPanel>
+    </Grid>
+</Window>

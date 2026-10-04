@@ -1,0 +1,23 @@
+# Build output
+bin/
+obj/
+artifacts/
+
+# IDE state
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Runtime browser/session data (defense in depth; normal storage is in LocalAppData)
+profiles/
+Profiles/
+settings.json
+*.tmp
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Generated diagnostic runs
+Diagnostics/Runs/
