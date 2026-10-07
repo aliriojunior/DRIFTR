@@ -12,7 +12,7 @@
     <Company></Company>
     <Copyright></Copyright>
     <Description>Multi-session desktop browser.</Description>
-    <Version>1.1.0-rc.5</Version>
+    <Version>1.1.0</Version>
     <FileVersion>1.1.0.0</FileVersion>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
     <ApplicationIcon>Assets\driftr.ico</ApplicationIcon>

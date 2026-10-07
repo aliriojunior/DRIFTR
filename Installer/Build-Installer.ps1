@@ -4,7 +4,7 @@ param()
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $definition = Join-Path $PSScriptRoot 'DRIFTR.iss'
-$output = Join-Path $projectRoot 'artifacts\installer\DRIFTR-Setup-1.1.0-rc.5.exe'
+$output = Join-Path $projectRoot 'artifacts\installer\DRIFTR-Setup-1.1.0.exe'
 
 & (Join-Path $PSScriptRoot 'Test-InstallerDefinition.ps1')
 

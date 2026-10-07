@@ -1,21 +1,21 @@
-# DRIFTR 1.1.0-rc.3
+# DRIFTR 1.1.0
 
 **One Window. Every World.**
 
 DRIFTR is a Windows desktop client for one to four independent, manually controlled browser sessions. The DRIFTR Licensing API provides authentication, device activation, and server-authoritative entitlements. DRIFTR does not automate browser or gameplay activity.
 
-The licensing API defaults to `https://driftr-licensing-api.onrender.com/`. Development environments can override it with `DRIFTR_LICENSE_API_URL`; no credentials or administrative secrets are embedded in the client.
+The licensing API defaults to `https://driftr-licensing-api.onrender.com/`. `DRIFTR_LICENSE_API_URL` may select another HTTPS endpoint. Debug builds additionally permit explicit HTTP loopback endpoints such as `http://127.0.0.1:8000`; Release builds reject all insecure HTTP licensing endpoints. No credentials or administrative secrets are embedded in the client.
 
 ## Build and test
 
 ```powershell
 dotnet restore
-dotnet build
-dotnet run --project Tests\DRIFTR.Tests.csproj
+dotnet build -c Release
+dotnet run -c Release --project Tests\DRIFTR.Tests.csproj
 dotnet run
 ```
 
-Requirements are Windows 10/11 x64, Microsoft Edge WebView2 Runtime, and a reachable licensing API. Framework-dependent builds also require .NET 8 Desktop Runtime. `DRIFTR_LICENSE_API_URL` overrides the development API default of `http://127.0.0.1:8000`.
+Requirements are Windows 10/11 x64, Microsoft Edge WebView2 Runtime, and a reachable licensing API. Framework-dependent development builds also require .NET 8 Desktop Runtime.
 
 ## Secure authentication
 
@@ -79,18 +79,17 @@ $env:DRIFTR_DATA_ROOT = 'C:\isolated\DRIFTR'
 $env:DRIFTR_LEGACY_DATA_ROOT = 'C:\isolated\RyVex'
 ```
 
-## Development publish
+## Final publish
 
 ```powershell
-dotnet publish -p:PublishProfile=DRIFTR-refresh-win-x64
+dotnet publish -p:PublishProfile=DRIFTR-win-x64
 ```
 
-For the 1.1.0-rc.3 release candidate:
+Output: `artifacts\DRIFTR-1.1.0-win-x64\DRIFTR.exe`.
 
 ```powershell
-dotnet publish -p:PublishProfile=DRIFTR-rc3-win-x64
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Installer\Test-InstallerDefinition.ps1
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Installer\Build-Installer.ps1
 ```
 
-Output: `artifacts\DRIFTR-1.1.0-rc.3-win-x64\DRIFTR.exe`.
-
-This remains in the DRIFTR 1.1.0 prerelease line and does not replace stable RyVex artifacts. Payments, offline certificates, installers, updating, code signing, and the final logo remain outside this phase.
+The final profile is Release, self-contained, and targets Windows x64. The installer remains per-user and preserves DRIFTR and legacy RyVex user data during upgrades and uninstall.

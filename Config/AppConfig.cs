@@ -6,7 +6,7 @@ public static class AppConfig
 {
     // Change this one value to update the Home destination for all four accounts.
     public const string DefaultUrl = "https://poke.idleworld.online/";
-    public const string DefaultLicensingApiUrl = "https://driftr-licensing-api.onrender.com";
+    public const string DefaultLicensingApiUrl = "https://driftr-licensing-api.onrender.com/";
     public const string UpdateOwner = "aliriojunior";
     public const string UpdateRepository = "DRIFTR";
     public const string GitHubApiVersion = "2026-03-10";
@@ -49,14 +49,27 @@ public static class AppConfig
         return Path.GetFullPath(string.IsNullOrWhiteSpace(configured) ? defaultPath : configured);
     }
 
-    public static Uri ResolveLicensingApiBaseUri(string? configured)
+#if DEBUG
+    internal const bool AllowInsecureLoopbackLicensingApi = true;
+#else
+    internal const bool AllowInsecureLoopbackLicensingApi = false;
+#endif
+
+    public static Uri ResolveLicensingApiBaseUri(string? configured) =>
+        ResolveLicensingApiBaseUri(configured, AllowInsecureLoopbackLicensingApi);
+
+    public static Uri ResolveLicensingApiBaseUri(string? configured, bool allowInsecureLoopback)
     {
         string value = configured ?? DefaultLicensingApiUrl;
         if (!Uri.TryCreate(value.TrimEnd('/') + "/", UriKind.Absolute, out Uri? uri) ||
             uri.Scheme is not ("http" or "https"))
         {
-            throw new InvalidOperationException("DRIFTR_LICENSE_API_URL must be an absolute HTTP or HTTPS URL.");
+            throw new InvalidOperationException("DRIFTR_LICENSE_API_URL must be an absolute HTTPS URL.");
         }
+
+        if (uri.Scheme == Uri.UriSchemeHttp && (!allowInsecureLoopback || !uri.IsLoopback))
+            throw new InvalidOperationException(
+                "DRIFTR_LICENSE_API_URL must use HTTPS; HTTP is allowed only for loopback development endpoints in Debug builds.");
 
         return uri;
     }

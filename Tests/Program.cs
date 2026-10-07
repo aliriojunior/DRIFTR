@@ -123,7 +123,7 @@ static async Task TestUpdateNetworkBehaviorAsync()
         Assert(captured.RequestUri == AppConfig.UpdateReleasesApiUri && captured.Headers.Authorization is null,
             "Update requests use only the configured public releases endpoint without authentication.");
         Assert(captured.Headers.Accept.Any(value => value.MediaType == "application/vnd.github+json") &&
-               captured.Headers.UserAgent.ToString() == "DRIFTR/1.1.0-rc.5" &&
+               captured.Headers.UserAgent.ToString() == "DRIFTR/1.1.0" &&
                captured.Headers.Contains("X-GitHub-Api-Version"),
             "Update requests send the required GitHub REST headers.");
     }
@@ -201,8 +201,26 @@ static void TestLicensingApiConfiguration()
 {
     Assert(AppConfig.ResolveLicensingApiBaseUri(null) == new Uri("https://driftr-licensing-api.onrender.com/"),
         "Production licensing URL is the default.");
+    Assert(AppConfig.ResolveLicensingApiBaseUri("https://license.example.com") == new Uri("https://license.example.com/"),
+        "A production override must use HTTPS.");
+    AssertThrows<InvalidOperationException>(() =>
+        AppConfig.ResolveLicensingApiBaseUri("http://127.0.0.1:8000", allowInsecureLoopback: false));
+    AssertThrows<InvalidOperationException>(() =>
+        AppConfig.ResolveLicensingApiBaseUri("http://license.example.com", allowInsecureLoopback: false));
+#if DEBUG
     Assert(AppConfig.ResolveLicensingApiBaseUri("http://127.0.0.1:8000") == new Uri("http://127.0.0.1:8000/"),
-        "Licensing URL environment value overrides the default.");
+        "A Debug build enables its loopback development override.");
+#else
+    AssertThrows<InvalidOperationException>(() => AppConfig.ResolveLicensingApiBaseUri("http://127.0.0.1:8000"));
+#endif
+    Assert(AppConfig.ResolveLicensingApiBaseUri("http://127.0.0.1:8000", allowInsecureLoopback: true) ==
+           new Uri("http://127.0.0.1:8000/"),
+        "An explicitly enabled development build can use an HTTP loopback endpoint.");
+    Assert(AppConfig.ResolveLicensingApiBaseUri("http://localhost:8000", allowInsecureLoopback: true) ==
+           new Uri("http://localhost:8000/"),
+        "An explicitly enabled development build can use localhost.");
+    AssertThrows<InvalidOperationException>(() =>
+        AppConfig.ResolveLicensingApiBaseUri("http://license.example.com", allowInsecureLoopback: true));
     AssertThrows<InvalidOperationException>(() => AppConfig.ResolveLicensingApiBaseUri("not-a-url"));
     Assert(AppConfig.ResolveLicensingApiBaseUri("https://example.com///").AbsoluteUri == "https://example.com/",
         "Licensing URL trailing slash is normalized.");

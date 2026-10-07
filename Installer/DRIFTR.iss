@@ -1,8 +1,8 @@
 #define MyAppName "DRIFTR"
-#define MyAppVersion "1.1.0-rc.5"
+#define MyAppVersion "1.1.0"
 #define MyAppPublisher "DRIFTR"
 #define MyAppExeName "DRIFTR.exe"
-#define MyPayloadDir "..\artifacts\DRIFTR-1.1.0-rc.5-win-x64"
+#define MyPayloadDir "..\artifacts\DRIFTR-1.1.0-win-x64"
 
 [Setup]
 ; This identity is permanent. Every future DRIFTR installer must reuse it.
@@ -21,7 +21,7 @@ ArchitecturesAllowed=x64os
 ArchitecturesInstallIn64BitMode=x64os
 MinVersion=10.0
 OutputDir=..\artifacts\installer
-OutputBaseFilename=DRIFTR-Setup-1.1.0-rc.5
+OutputBaseFilename=DRIFTR-Setup-1.1.0
 SetupIconFile=..\Assets\driftr.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 Compression=lzma2/max

@@ -1,6 +1,6 @@
 # DRIFTR installer
 
-This directory defines the per-user Windows installer for DRIFTR 1.1.0-rc.5.
+This directory defines the per-user Windows installer for DRIFTR 1.1.0.
 
 ## Permanent application identity
 
@@ -24,10 +24,10 @@ Then run from the project root:
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\Installer\Build-Installer.ps1
 ```
 
-The build helper validates the rc.5 payload and all frozen release hashes before invoking `ISCC.exe`. It refuses to overwrite an existing installer artifact. Successful compilation produces:
+The build helper validates the freshly published 1.1.0 payload and installer definition before invoking `ISCC.exe`. It does not depend on historical RC ZIPs, installers, or frozen build hashes. It refuses to overwrite an existing installer artifact. Successful compilation produces:
 
 ```text
-artifacts\installer\DRIFTR-Setup-1.1.0-rc.5.exe
+artifacts\installer\DRIFTR-Setup-1.1.0.exe
 ```
 
 ## Installation and upgrades
@@ -38,7 +38,7 @@ The installer uses `PrivilegesRequired=lowest` and defaults to:
 %LOCALAPPDATA%\Programs\DRIFTR
 ```
 
-It installs the complete self-contained rc.5 win-x64 application payload, creates a Start Menu shortcut, and offers an unchecked optional Desktop shortcut. The completion page offers to launch DRIFTR.
+It installs the complete self-contained 1.1.0 win-x64 application payload, creates a Start Menu shortcut, and offers an unchecked optional Desktop shortcut. The completion page offers to launch DRIFTR.
 
 The stable AppId, previous-directory/task reuse, and fixed installation path permit future in-place upgrades. Inno Setup Restart Manager integration checks only `DRIFTR.exe` and asks for it to be closed before replacing files. It does not target unrelated WebView2 processes.
 
@@ -60,7 +60,7 @@ The application payload includes the Microsoft WebView2 SDK assemblies and nativ
 
 ## Signing readiness
 
-This installer and the rc.5 application binaries are currently unsigned, so Windows SmartScreen may show an unknown-publisher or low-reputation warning.
+This installer and the 1.1.0 application binaries are currently unsigned, so Windows SmartScreen may show an unknown-publisher or low-reputation warning.
 
 For a future signed release:
 
